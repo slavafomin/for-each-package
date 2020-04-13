@@ -1,0 +1,25 @@
+{
+  "name": "for-each-package",
+  "version": "0.0.0",
+  "description": "Run command for each npm package under directory",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "build:watch": "tsc -w",
+    "start": "npm run build:watch"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "ignore": "^5.1.4",
+    "load-json-file": "^6.2.0",
+    "minimatch": "^3.0.4",
+    "readdirp": "^3.4.0"
+  },
+  "devDependencies": {
+    "@types/minimatch": "^3.0.3",
+    "@types/node": "^13.11.1",
+    "typescript": "^3.8.3"
+  }
+}
