@@ -1,3 +1,11 @@
 #!/usr/bin/env node
 
-require('../dist/cli.js')();
+require('source-map-support').install();
+
+// Disabling "ts-node" support in oclif
+// (we are compiling all our code on our own)
+process.env.OCLIF_TS_NODE = '0';
+
+require('../dist/cli.js').run()
+  .catch(require('@oclif/errors/handle'))
+;

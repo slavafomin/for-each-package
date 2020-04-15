@@ -1,16 +1,46 @@
 
+import { Command, flags } from '@oclif/command';
+
 import { forEachPackage } from './index';
 
 
-export = async function cli(): Promise<void> {
+interface CommandFlags {
+  name?: string;
+}
 
-  // @todo: parse CLI arguments
 
-  await forEachPackage({
-    // @todo: pass options from CLI arguments
+export = class DefaultCommand extends Command {
 
-    packageName: '@test/*',
+  // Allowing any number of arguments
+  static strict = false;
 
-  });
+  static flags: flags.Input<CommandFlags> = {
+    name: flags.string({
+      char: 'n',
+      description: 'Glob pattern or RegExp to filter packages by name',
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      parse: (pattern): any => parseNameFlag(pattern),
+    }),
+  };
 
+  public async run(): Promise<void> {
+
+    const { flags, argv } = this.parse(DefaultCommand);
+
+    await forEachPackage({
+      command: argv.join(' && '),
+      packageName: flags.name,
+    });
+
+  }
+
+}
+
+
+function parseNameFlag(pattern: string): (string | RegExp) {
+  if (pattern.startsWith('/') && pattern.endsWith('/')) {
+    return new RegExp(pattern.slice(1, -1));
+  } else {
+    return pattern;
+  }
 }

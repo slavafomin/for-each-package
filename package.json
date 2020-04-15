@@ -1,25 +1,85 @@
 {
-  "name": "for-each-package",
+  "name": "@sfomin/for-each-package",
   "version": "0.0.0",
   "description": "Run command for each npm package under directory",
-  "main": "index.js",
   "scripts": {
-    "build": "tsc",
+    "build": "run-s build:clean build:compile",
+    "build:clean": "rm -rf ./dist/",
+    "build:compile": "tsc",
     "build:watch": "tsc -w",
-    "start": "npm run build:watch"
+    "lint": "npx eslint src/**/*.ts",
+    "prepublishOnly": "run-s lint build",
+    "start": "run-s build:clean build:watch"
   },
-  "keywords": [],
-  "author": "",
+  "keywords": [
+    "cli",
+    "execute",
+    "for-each",
+    "lerna",
+    "monorepo",
+    "npm",
+    "package",
+    "rush",
+    "search",
+    "shell"
+  ],
+  "author": "Slava Fomin II <slava@fomin.io> (https://slava.fomin.io)",
+  "homepage": "https://bitbucket.sberned.ru/projects/WG/repos/scaffold/browse/scaffold/cli",
+  "repository": "https://github.com/slavafomin/for-each-package.git",
+  "bugs": "https://github.com/slavafomin/for-each-package/issues",
   "license": "MIT",
+  "bin": {
+    "for-each-package": "bin/run",
+    "fep": "bin/run"
+  },
+  "main": "dist/index.js",
+  "types": "dist/types/index.d.ts",
+  "files": [
+    "bin/",
+    "dist/"
+  ],
+  "engines": {
+    "node": ">=8.0.0"
+  },
+  "oclif": {
+    "bin": "for-each-package",
+    "plugins": [
+      "@oclif/plugin-autocomplete",
+      "@oclif/plugin-help",
+      "@oclif/plugin-not-found",
+      "@oclif/plugin-warn-if-update-available"
+    ],
+    "warn-if-update-available": {
+      "timeoutInDays": 1,
+      "message": "Update is available from version <%= chalk.greenBright(config.version) %> to version <%= chalk.greenBright(latest) %>"
+    }
+  },
   "dependencies": {
+    "@oclif/command": "^1.5.19",
+    "@oclif/config": "^1.15.1",
+    "@oclif/errors": "^1.2.2",
+    "@oclif/plugin-autocomplete": "^0.1.5",
+    "@oclif/plugin-help": "^2.2.3",
+    "@oclif/plugin-not-found": "^1.2.3",
+    "@oclif/plugin-warn-if-update-available": "^1.7.0",
+    "chalk": "^4.0.0",
+    "execa": "^4.0.0",
+    "glob-to-regexp": "^0.4.1",
+    "globby": "^11.0.0",
     "ignore": "^5.1.4",
     "load-json-file": "^6.2.0",
-    "minimatch": "^3.0.4",
-    "readdirp": "^3.4.0"
+    "readdirp": "^3.4.0",
+    "source-map-support": "^0.5.16"
   },
   "devDependencies": {
+    "@types/glob-to-regexp": "^0.4.0",
     "@types/minimatch": "^3.0.3",
     "@types/node": "^13.11.1",
+    "@typescript-eslint/eslint-plugin": "^2.28.0",
+    "@typescript-eslint/parser": "^2.28.0",
+    "eslint": "^6.8.0",
+    "eslint-plugin-import": "^2.20.2",
+    "npm-run-all": "^4.1.5",
     "typescript": "^3.8.3"
   }
 }

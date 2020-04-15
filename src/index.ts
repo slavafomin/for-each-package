@@ -1,35 +1,9 @@
 
-import readdirp from 'readdirp';
-import minimatch from 'minimatch';
-import loadJsonFile from 'load-json-file';
-import ignore, { Ignore } from 'ignore';
-import { readFile } from 'fs';
-import { promisify } from 'util';
-import { dirname, resolve as resolvePath } from 'path';
-
-
-export interface ForEachPackageOptions {
-
-  /**
-   * Glob or RegExp to filter found packages by their name.
-   */
-  packageName?: PackageNameFilter;
-
-}
-
-export type PackageNameFilter = (string | RegExp);
-
-
-const $readFile = promisify(readFile);
-
-const builtInIgnores = [
-  '.git/',
-  '.idea/',
-  'node_modules/',
-  'pnpm-store/',
-];
-
-const manifestFilename = 'package.json';
+import { filterPackagesByName } from './filter-packages';
+import { findPackages } from './find-packages';
+import { getIgnoreRules } from './ignore-rules';
+import { ForEachPackageOptions } from './options';
+import { runCommandsSequentially } from './run-commands';
 
 
 export async function forEachPackage(
@@ -37,112 +11,26 @@ export async function forEachPackage(
 
 ): Promise<void> {
 
-  const basePath = process.cwd();
+  const basePath = (options.cwd || process.cwd());
 
-  const ignoreRules = ignore();
-
-  // Adding built-in globs to ignore
-  builtInIgnores.forEach(glob => ignoreRules.add(glob));
-
-  // Adding globs from .gitignore file
-  await addGlobsFromGitignoreFile(basePath, ignoreRules);
+  // Loading ignore rules
+  const ignoreRules = await getIgnoreRules(basePath);
 
   // Looking for packages recursively
-  let packagePaths = await findPackages(basePath, ignoreRules);
+  let packages = await findPackages(basePath, ignoreRules);
 
   // Filtering packages by their name if requested
   if (options.packageName) {
-    packagePaths = await filterPackagesByName(packagePaths, options.packageName);
+    packages = await filterPackagesByName(packages, options.packageName);
   }
 
-  // @todo: execute command
+  // Running the specified command for each found package
+  // -----
 
-  console.log({ packagePaths });
-
-}
-
-
-async function addGlobsFromGitignoreFile(
-  basePath: string,
-  ignoreRules: Ignore
-
-): Promise<void> {
-
-  try {
-    const gitignoreContent = await $readFile(`${basePath}/.gitignore`, {
-      encoding: 'utf8',
-    });
-
-    ignoreRules.add(gitignoreContent);
-
-  } catch (error) {
-
-    // Suppressing error if the file doesn't exist
-    if (error.code !== 'ENOENT') {
-      throw error;
-    }
-
-  }
-
-}
-
-async function findPackages(
-  basePath: string,
-  ignoreRules: Ignore
-
-): Promise<string[]> {
-
-  let files = await readdirp.promise(basePath, {
-    fileFilter: manifestFilename,
-    directoryFilter: ({ path }) => !ignoreRules.ignores(path),
+  await runCommandsSequentially({
+    packages,
+    command: options.command,
+    shell: options.shell,
   });
-
-  return (files
-    // Working directly with the relative path to "package.json" file
-    .map(file => file.path)
-
-    // Running found paths through the filter again
-    // (not all cases are excluded using directory filter)
-    .filter(ignoreRules.createFilter())
-
-    // Getting rid of filename, leaving only the directory path
-    .map(path => resolvePath(basePath, dirname(path)))
-  );
-
-}
-
-async function filterPackagesByName(
-  packagePaths: string[],
-  packageNameFilter: PackageNameFilter
-
-): Promise<string[]> {
-
-  const matchedPackages: string[] = [];
-
-  for (const packagePath of packagePaths) {
-
-    const { name: packageName } = await loadJsonFile(
-      `${packagePath}/${manifestFilename}`
-    );
-
-    const matches = (
-      (
-        // Matching using glob pattern
-        typeof packageNameFilter === 'string' &&
-        minimatch(packageName, packageNameFilter)
-      ) || (
-        // Matching using regular expression
-        packageNameFilter instanceof RegExp &&
-        packageNameFilter.test(packageName)
-      )
-    );
-
-    if (matches) {
-      matchedPackages.push(packagePath);
-    }
-
-  }
-
-  return matchedPackages;
 
 }

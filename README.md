@@ -1,9 +1,9 @@
 
 # for-each-package
 
-<!-- NPM Version Badge -->
-<a href="https://badge.fury.io/js/for-each-package">
-  <img src="https://badge.fury.io/js/for-each-package.svg" alt="npm version" height="20">
+<!-- NPM Badge -->
+<a href="https://badge.fury.io/js/%40sfomin%2Ffor-each-package">
+  <img src="https://badge.fury.io/js/%40sfomin%2Ffor-each-package.svg" alt="npm version" height="18">
 </a>
 
 <!-- MIT License Badge -->
@@ -23,16 +23,73 @@ Runs command for each npm package under current working directory.
 - can filter packages by their name from `package.json`
 - provides both CLI and JavaScript API
 - type-safe (written in TypeScript and ships with type declarations)
+- supports shell expressions in commands
 
 
-## Example
+## Installation
 
-`@todo`
+`npm i -g @sfomin/for-each-package`
+
+## CLI
+
+The installed package provides global binary called
+`for-each-package` or a short alias `fep`.
+
+### Examples
+
+`for-each-package "command with args"` - this would execute `command` for each npm package
+found under the current working directory
+(skipping the paths like `/node_modules` and paths from `.gitignore`).
+
+E.g.: `for-each-package "pwd; echo; ls -l"` would print path of each package
+and would list all files in that directory.
+
+The following calls will run the specified command in all packages
+that match `@acme/*` pattern:
+
+- `for-each-package --name "@acme/*" "command"` or
+- `for-each-package -n "@acme/*" "command"` or
+- `fep -n "@acme/*" "command"`
 
 
-## Options
+### Options (CLI)
 
-`@todo`
+`--name | -n` - filters found packages by name using the
+specified glob pattern or regular expression.
+Regular expression should be specified this way: `"/^@acme\/$/"`
+(between two slashes). Glob pattern should adhere to the
+extended format supported by [glob-to-regexp][glob-to-regexp].
+
+
+## JavaScript API
+
+This package could also be used programmatically, i.e. directly
+from your Node.js program:
+
+```typescript
+
+import { forEachPackage } from '@sfomin/for-each-package';
+
+await forEachPackage({
+  cwd: '/var/packages',
+  command: 'pwd && ls -l',
+  packageName: /^@acme\//
+});
+```
+
+### Options (JS API)
+
+`command: string` - shell command to execute for each found package
+
+`cwd?: string` - root directory that should be searched for packages
+
+`packageName?: string | RegExp` - package name filter glob pattern or RegExp
+
+`shell?: (boolean | string) = true` - whether to use shell to execute the specified command
+
+* `false`          - do not use shell
+* `true` (default) - use default shell (/bin/sh on UNIX and cmd.exe on Windows)
+* `string`         - use the specified shell
 
 
 ## License (MIT)
@@ -56,3 +113,6 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+
+  [glob-to-regexp]: https://github.com/fitzgen/glob-to-regexp#readme

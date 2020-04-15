@@ -13,8 +13,7 @@
       "ESNext"
     ]
   },
-  "files": [
-    "src/cli.ts",
-    "src/index.ts"
+  "include": [
+    "src/"
   ]
 }
