@@ -1,9 +1,14 @@
 
-# for-each-package
+# @sfomin/for-each-package
 
 <!-- NPM Badge -->
 <a href="https://badge.fury.io/js/%40sfomin%2Ffor-each-package">
   <img src="https://badge.fury.io/js/%40sfomin%2Ffor-each-package.svg" alt="npm version" height="18">
+</a>
+
+<!-- CodeClimate Badge -->
+<a href="https://codeclimate.com/github/slavafomin/for-each-package/maintainability">
+  <img src="https://api.codeclimate.com/v1/badges/0d74bceac218c511a141/maintainability" alt="maintainability">
 </a>
 
 <!-- MIT License Badge -->
