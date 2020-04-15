@@ -44,9 +44,8 @@ async function runCommand(options: {
     preferLocal: true,
     localDir: $package.path,
     shell: (shell !== undefined ? shell : true),
+    stdio: 'inherit',
   });
-
-  execution.stdout?.pipe(process.stdout);
 
   await execution;
 
