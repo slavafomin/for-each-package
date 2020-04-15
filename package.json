@@ -1,6 +1,6 @@
 {
   "name": "@sfomin/for-each-package",
-  "version": "0.0.0",
+  "version": "0.0.1",
   "description": "Run command for each npm package under directory",
   "scripts": {
     "build": "run-s build:clean build:compile",
